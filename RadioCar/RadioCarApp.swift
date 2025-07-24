@@ -10,6 +10,8 @@ import SwiftData
 
 @main
 struct RadioCarApp: App {
+    @StateObject private var container = DependencyContainer()
+
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Item.self,
@@ -26,7 +28,9 @@ struct RadioCarApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(container)     // inject dependency container
         }
         .modelContainer(sharedModelContainer)
     }
 }
+
