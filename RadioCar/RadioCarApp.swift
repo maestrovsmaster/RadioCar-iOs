@@ -12,7 +12,7 @@ import SwiftData
 struct RadioCarApp: App {
     @StateObject private var container = DependencyContainer()
 
-    var sharedModelContainer: ModelContainer = {
+   /* var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Item.self,
         ])
@@ -23,14 +23,14 @@ struct RadioCarApp: App {
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }
-    }()
+    }()*/
 
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(container)     // inject dependency container
         }
-        .modelContainer(sharedModelContainer)
+        //.modelContainer(sharedModelContainer)
     }
 }
 

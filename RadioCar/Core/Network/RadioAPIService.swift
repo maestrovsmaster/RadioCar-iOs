@@ -18,44 +18,43 @@ final class RadioAPIService {
         self.session = URLSession(configuration: configuration)
     }
 
-    // 1. Fetch stations by country
+    // MARK: - Public API
+
     func fetchStations(
         country: String = "UA",
         offset: Int = 0,
         limit: Int = 200
     ) async throws -> [Station] {
         print("fetchStations")
-        let url = baseURL
-            .appendingPathComponent("/json/stations/search")
-            .appending(queryItems: [
-                .init(name: "countrycode", value: country),
-                .init(name: "offset", value: "\(offset)"),
-                .init(name: "limit", value: "\(limit)"),
-                .init(name: "order", value: "votes"),
-                .init(name: "reverse", value: "true")
-            ])
+        let query: [String: String] = [
+            "countrycode": country,
+            "offset": "\(offset)",
+            "limit": "\(limit)",
+            "order": "votes",
+            "reverse": "true"
+        ]
+        let url = try buildURL(path: "/json/stations/search", queryItems: query)
         return try await sendRequest(url: url)
     }
 
-    // 2. Fetch stations by name
     func fetchStationsByName(
         searchTerm: String,
         offset: Int = 0,
         limit: Int = 200
     ) async throws -> [Station] {
         print("fetchStationsByName")
-        let url = baseURL
-            .appendingPathComponent("/json/stations/byname/\(searchTerm.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? "")")
-            .appending(queryItems: [
-                .init(name: "offset", value: "\(offset)"),
-                .init(name: "limit", value: "\(limit)"),
-                .init(name: "order", value: "votes"),
-                .init(name: "reverse", value: "true")
-            ])
+        let encodedTerm = searchTerm.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? ""
+        let path = "/json/stations/byname/\(encodedTerm)"
+        let query: [String: String] = [
+            "offset": "\(offset)",
+            "limit": "\(limit)",
+            "order": "votes",
+            "reverse": "true"
+        ]
+        let url = try buildURL(path: path, queryItems: query)
         return try await sendRequest(url: url)
     }
 
-    // 3. Full-featured search (like getStationsExt)
     func fetchStationsExt(
         country: String = "UA",
         name: String = "",
@@ -66,21 +65,32 @@ final class RadioAPIService {
         reverse: String = "true"
     ) async throws -> [Station] {
         print("fetchStationsExt")
-        let url = baseURL
-            .appendingPathComponent("/json/stations/search")
-            .appending(queryItems: [
-                .init(name: "countrycode", value: country),
-                .init(name: "name", value: name),
-                .init(name: "tag", value: tag),
-                .init(name: "offset", value: "\(offset)"),
-                .init(name: "limit", value: "\(limit)"),
-                .init(name: "order", value: order),
-                .init(name: "reverse", value: reverse)
-            ])
+        let query: [String: String] = [
+            "countrycode": country,
+            "name": name,
+            "tag": tag,
+            "offset": "\(offset)",
+            "limit": "\(limit)",
+            "order": order,
+            "reverse": reverse
+        ]
+        let url = try buildURL(path: "/json/stations/search", queryItems: query)
         return try await sendRequest(url: url)
     }
 
-    // MARK: - Private
+    // MARK: - Private helpers
+
+    private func buildURL(path: String, queryItems: [String: String]) throws -> URL {
+        var components = URLComponents(url: baseURL.appendingPathComponent(path), resolvingAgainstBaseURL: false)
+        components?.queryItems = queryItems.map { URLQueryItem(name: $0.key, value: $0.value) }
+
+        guard let url = components?.url else {
+            throw URLError(.badURL)
+        }
+
+        return url
+    }
+
     private func sendRequest(url: URL) async throws -> [Station] {
         let startTime = Date()
         let (data, response) = try await session.data(from: url)
@@ -99,17 +109,11 @@ final class RadioAPIService {
         do {
             return try JSONDecoder().decode([Station].self, from: data)
         } catch {
-            // Логування повного json для діагностики
             if let jsonString = String(data: data, encoding: .utf8) {
                 print("❌ JSON decoding failed for response: \(jsonString.prefix(1000))")
             }
-            // Логування самої помилки
             print("❌ Decoding error: \(error)")
-
-            // Можна додатково кастомізувати помилку (наприклад, прокидати кастомну або просто повторно кинути)
             throw error
         }
     }
-
 }
-
