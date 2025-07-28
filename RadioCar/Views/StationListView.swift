@@ -21,6 +21,7 @@ struct StationListView: View {
             }
             .contentShape(Rectangle())
             .onTapGesture {
+                //print("station image = \(station.favicon)")
                 PlayerState.shared.playStation(station)
             }
         }

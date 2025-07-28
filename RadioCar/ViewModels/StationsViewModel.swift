@@ -22,6 +22,7 @@ class StationsViewModel: ObservableObject {
         do {
             let stations = try await repository.fetchStations(country: "UA", offset: 0, limit: 50)
             self.stations = stations
+            PlayerState.shared.setStations(stations)
         } catch {
             self.errorMessage = error.localizedDescription
         }

@@ -21,18 +21,28 @@ struct ContentView: View {
 
     var body: some View {
         NavigationView {
-            StationListView(stations: viewModel.stations)
-                .navigationTitle("Radio Stations")
-                .task {
-                    await viewModel.loadStations()
-                }
-                .alert("Error", isPresented: Binding(get: {
-                    viewModel.errorMessage != nil
-                }, set: { newValue in
-                    if !newValue { viewModel.errorMessage = nil }
-                }), actions: {}) {
-                    Text(viewModel.errorMessage ?? "Unknown error")
-                }
+            VStack(spacing: 0) {
+                MediumPlayerView()
+                    .frame(maxWidth: .infinity)
+                    .frame(height: UIScreen.main.bounds.height * 0.45) // 45% висоти екрану, можна коригувати
+                    .background(Color.blue) // або будь-який фон
+
+                StationListView(stations: viewModel.stations)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: UIScreen.main.bounds.height * 0.55) // решта висоти
+            }
+            //.navigationTitle("Radio Stations")
+            .task {
+                await viewModel.loadStations()
+            }
+            .alert("Error", isPresented: Binding(get: {
+                viewModel.errorMessage != nil
+            }, set: { newValue in
+                if !newValue { viewModel.errorMessage = nil }
+            }), actions: {}) {
+                Text(viewModel.errorMessage ?? "Unknown error")
+            }
         }
     }
 }
+

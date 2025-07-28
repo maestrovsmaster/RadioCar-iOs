@@ -29,8 +29,18 @@ final class AudioPlayerManager: NSObject {
     
     private override init() {
         super.init()
+        setupAudioSession()
         setupRemoteCommandCenter()
         observePlayerState()
+    }
+    
+    private func setupAudioSession() {
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [])
+            try AVAudioSession.sharedInstance().setActive(true)
+        } catch {
+            print("Failed to activate audio session: \(error)")
+        }
     }
     
     private func observePlayerState() {
@@ -65,6 +75,7 @@ final class AudioPlayerManager: NSObject {
         
         if player == nil || player?.currentItem?.asset != AVAsset(url: url) {
             player = AVPlayer(url: url)
+            self.updateNowPlayingInfo(title: station.name ?? "Radio", artist: "")
         }
         
         player?.play()
@@ -109,6 +120,19 @@ final class AudioPlayerManager: NSObject {
             return .success
         }
     }
+    
+    
+    private func updateNowPlayingInfo(title: String, artist: String? = nil) {
+        var nowPlayingInfo: [String: Any] = [
+            MPMediaItemPropertyTitle: title
+        ]
+        if let artist = artist {
+            nowPlayingInfo[MPMediaItemPropertyArtist] = artist
+        }
+
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+    }
+    
 }
 
 extension Notification.Name {
