@@ -17,6 +17,8 @@ final class PlayerState: ObservableObject {
     @Published var stationList: [Station] = []
     
     @Published var songMetadata: String?
+    
+    @Published var volume: Float = 1.0
 
     private init() {}
 

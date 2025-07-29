@@ -25,12 +25,12 @@ struct ContentView: View {
                 MediumPlayerView()
                     .frame(maxWidth: .infinity)
                     .frame(height: UIScreen.main.bounds.height * 0.45) // 45% висоти екрану, можна коригувати
-                    .background(Color.blue) // або будь-який фон
+                   
 
                 StationListView(stations: viewModel.stations)
                     .frame(maxWidth: .infinity)
                     .frame(height: UIScreen.main.bounds.height * 0.55) // решта висоти
-            }
+            }.background(Color.black) 
             //.navigationTitle("Radio Stations")
             .task {
                 await viewModel.loadStations()

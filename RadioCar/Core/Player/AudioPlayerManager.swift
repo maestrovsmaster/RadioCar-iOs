@@ -65,6 +65,12 @@ final class AudioPlayerManager: NSObject {
                 }
             }
             .store(in: &subscriptions)
+        
+        PlayerState.shared.$volume
+            .sink { [weak self] volume in
+                self?.player?.volume = volume
+            }
+            .store(in: &subscriptions)
     }
     
     private func playStation(_ station: Station) {
