@@ -43,7 +43,7 @@ final class DefaultStationRepository: StationRepository {
         limit: Int
     ) async throws -> [StationGroup] {
         let stations = try await fetchStations(country: country, offset: offset, limit: limit)
-        return groupStations(stations)
+        return await groupStations(stations)
     }
 
     func getFavoriteStationGroups() async throws -> [StationGroup] {
@@ -52,7 +52,7 @@ final class DefaultStationRepository: StationRepository {
             guard let uuid = station.stationuuid else { return false }
             return favoriteUuids.contains(uuid)
         }
-        return groupStations(favoriteStations)
+        return await groupStations(favoriteStations)
     }
 
     func getRecentStationGroups() async throws -> [StationGroup] {
@@ -68,7 +68,7 @@ final class DefaultStationRepository: StationRepository {
                   let index2 = recentUuids.firstIndex(of: uuid2) else { return false }
             return index1 < index2
         }
-        return groupStations(sortedStations)
+        return await groupStations(sortedStations)
     }
 
     func addToFavorites(stationUuid: String) async throws {
@@ -102,10 +102,12 @@ final class DefaultStationRepository: StationRepository {
 
     // MARK: - Private Helpers
 
-    private func groupStations(_ stations: [Station]) -> [StationGroup] {
+    private func groupStations(_ stations: [Station]) async -> [StationGroup] {
         let grouped = Dictionary(grouping: stations) { $0.name ?? "Unknown" }
 
-        return grouped.map { name, stationsInGroup in
+        var groups: [StationGroup] = []
+
+        for (name, stationsInGroup) in grouped {
             let streams = stationsInGroup.map { station in
                 StationStream(
                     stationUuid: station.stationuuid ?? UUID().uuidString,
@@ -117,15 +119,23 @@ final class DefaultStationRepository: StationRepository {
             let favicon = stationsInGroup.first?.favicon ?? ""
             let countryCode = stationsInGroup.first?.countrycode
 
-            return StationGroup(
+            // Check if any station in the group is favorite
+            var isFavorite = false
+            if let firstUuid = stationsInGroup.first?.stationuuid {
+                isFavorite = (try? await storage.isFavorite(stationUuid: firstUuid)) ?? false
+            }
+
+            let group = StationGroup(
                 name: name,
                 streams: streams,
                 stations: stationsInGroup,
                 favicon: favicon,
-                isFavorite: false,
+                isFavorite: isFavorite,
                 countryCode: countryCode
             )
+            groups.append(group)
         }
-        .sorted { $0.name < $1.name }
+
+        return groups.sorted { $0.name < $1.name }
     }
 }

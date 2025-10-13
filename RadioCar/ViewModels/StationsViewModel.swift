@@ -68,17 +68,31 @@ class StationsViewModel: ObservableObject {
     }
 
     func toggleFavorite(for stationGroup: StationGroup) async {
-        do {
-            let firstStationUuid = stationGroup.stations.first?.stationuuid ?? ""
+        guard let firstStationUuid = stationGroup.stations.first?.stationuuid else { return }
 
-            if stationGroup.isFavorite {
-                try await repository.removeFromFavorites(stationUuid: firstStationUuid)
-            } else {
+        do {
+            let newFavoriteState = !stationGroup.isFavorite
+
+            if newFavoriteState {
                 try await repository.addToFavorites(stationUuid: firstStationUuid)
+            } else {
+                try await repository.removeFromFavorites(stationUuid: firstStationUuid)
             }
 
-            // Reload groups
-            await loadStationGroups()
+            // Update the specific group in the list
+            if let index = stationGroups.firstIndex(where: { $0.id == stationGroup.id }) {
+                var updatedGroup = stationGroups[index]
+                updatedGroup.isFavorite = newFavoriteState
+                stationGroups[index] = updatedGroup
+
+                // If we're in favorites view and removed from favorites, reload the list
+                if listType == .favorites && !newFavoriteState {
+                    await loadStationGroups()
+                }
+            }
+
+            // Update PlayerState groups as well
+            PlayerState.shared.setStationGroups(stationGroups)
         } catch {
             self.errorMessage = error.localizedDescription
         }
