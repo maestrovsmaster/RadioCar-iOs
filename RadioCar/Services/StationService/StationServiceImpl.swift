@@ -7,7 +7,7 @@
 import Foundation
 
 class StationServiceImpl: StationService {
-    private let baseURL = URL(string: "https://de1.api.radio-browser.info")! //  BASE_RADIO_URL
+    private let baseURL = URL(string: "https://de2.api.radio-browser.info")! //  BASE_RADIO_URL
     private let session: URLSession
 
     init(session: URLSession = .shared) {

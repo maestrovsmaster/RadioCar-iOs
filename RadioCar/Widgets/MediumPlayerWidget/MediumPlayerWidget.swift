@@ -10,28 +10,47 @@ struct MediumPlayerView: View {
             RoundedRectangle(cornerRadius: 16)
                 .fill(
                     LinearGradient(
-                        gradient: Gradient(colors: [AppColors.primary.opacity(0.9), AppColors.darkBrush.opacity(0.8), AppColors.primary.opacity(1.0)]),
+                        gradient: Gradient(colors: [AppColors.grad1.opacity(0.9), AppColors.darkBrush.opacity(0.8), AppColors.grad2.opacity(1.0)]),
                         startPoint: .top,
                         endPoint: .bottom
                     )
                 )
                 .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 4)
+            
+            VStack {
+                Spacer() // штовхає все вниз
+
+                    if playerState.isPlaying {
+                    LottieView(animationName: "anim_wave")
+                        .frame(height: 354)
+                        .padding(.bottom, -150)
+                }
+            }
+        
+       // .frame(height: 70)
+            
             VStack(spacing: 16) {
                 Spacer()
                 HStack(spacing: 12) {
                     
-                    StationImageCoverWidget()
+                    StationImageCoverWidget(imageUrl : playerState.currentStation?.favicon)
                     
-                    Text(playerState.currentStation?.name ?? "Choose station")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .lineLimit(2)
+                    VStack(){
+                        
+                        Text(playerState.currentStation?.name ?? "Choose station")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .lineLimit(2)
+                      
+                    }
+                    
+
                     
                     
                     Spacer()
                 }
                 .padding(.horizontal)
-                
+            
                 
                 VolumeBarView(
                     volume: $playerState.volume,
@@ -46,6 +65,8 @@ struct MediumPlayerView: View {
                 
                 
             }.padding()
+            
+      
             
         }.padding().frame(width: 20, height: 30)
     }

@@ -22,16 +22,22 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
-                MediumPlayerView()
-                    .frame(maxWidth: .infinity)
-                    .frame(height: UIScreen.main.bounds.height * 0.45) // 45% висоти екрану, можна коригувати
+                HStack {
+                    ControlsWidget().padding(.leading, 16)
+                        .padding(.top, 8).padding(.bottom, 8).padding(.trailing, 0)
+                    MediumPlayerView()
+                        .frame(maxWidth: .infinity).padding(.trailing, 8)
+                        
+                    
+                }.frame(height: UIScreen.main.bounds.height * 0.45)
+                
                    
 
                 StationListView(stations: viewModel.stations)
                     .frame(maxWidth: .infinity)
-                    .frame(height: UIScreen.main.bounds.height * 0.55) // решта висоти
-            }.background(Color.black) 
-            //.navigationTitle("Radio Stations")
+                    .frame(height: UIScreen.main.bounds.height * 0.55).background(Color.black)
+            }.background(Color.black)
+            //.navigationTitle("RadioCar")
             .task {
                 await viewModel.loadStations()
             }

@@ -12,19 +12,16 @@ struct StationListView: View {
     
     var body: some View {
         List(stations) { station in
-            HStack {
-                Text(station.name ?? "")
-                Spacer()
-                if playerState.currentStation?.id == station.id && playerState.isPlaying {
-                    Image(systemName: "speaker.wave.2.fill")
-                }
-            }
-            .contentShape(Rectangle())
-            .onTapGesture {
-                //print("station image = \(station.favicon)")
-                PlayerState.shared.playStation(station)
-            }
+            StationItemView(station: station)
+                .contentShape(Rectangle())
+               // .onTapGesture {
+                //
+                 //   PlayerState.shared.playStation(station)
+                //}
+                .listRowBackground(Color.black)
         }
+        .listStyle(PlainListStyle())
+        .background(Color.black.ignoresSafeArea()) 
         .onReceive(NotificationCenter.default.publisher(for: .nextTrackRequested)) { _ in
             playNextStation()
         }

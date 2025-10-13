@@ -8,7 +8,7 @@ import Foundation
 
 final class RadioAPIService {
     private let session: URLSession
-    private let baseURL = URL(string: "https://de1.api.radio-browser.info")!
+    private let baseURL = URL(string: "https://de2.api.radio-browser.info")!
 
     init() {
         let configuration = URLSessionConfiguration.default

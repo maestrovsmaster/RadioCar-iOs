@@ -7,18 +7,23 @@
 
 import SwiftUICore
 import SwiftUI
+import SwiftUI
+
 struct StationImageCoverWidget: View {
+    var size: CGFloat = 70  // ← параметр з дефолтним значенням
     
-    @ObservedObject private var playerState = PlayerState.shared
+   // @ObservedObject private var playerState = PlayerState.shared
+    
+    var imageUrl: String? = nil
     
     var body: some View {
-        if let faviconString = playerState.currentStation?.favicon,
+        if let faviconString = imageUrl, //playerState.currentStation?.favicon,
            let faviconURL = URL(string: faviconString) {
             AsyncImage(url: faviconURL) { phase in
                 switch phase {
                 case .empty:
                     ProgressView()
-                        .frame(width: 70, height: 70)
+                        .frame(width: size, height: size)
                         .onAppear {
                             print("🔄 Loading image from: \(faviconURL)")
                         }
@@ -27,13 +32,15 @@ struct StationImageCoverWidget: View {
                     image
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                        .frame(width: 70, height: 70)
-                        .cornerRadius(8).onAppear {
+                        .frame(width: size, height: size)
+                        .cornerRadius(8)
+                        .onAppear {
                             print("✅ Image loaded from: \(faviconURL)")
                         }
                     
                 case .failure(let error):
                     Image(systemName: "exclamationmark.triangle")
+                        .frame(width: size, height: size)
                         .onAppear {
                             print("❌ Failed to load image: \(error.localizedDescription)")
                         }
@@ -43,8 +50,6 @@ struct StationImageCoverWidget: View {
                 }
             }
         } else {
-           // Color.gray.frame(width: 70, height: 70).cornerRadius(8)
-            
             RoundedRectangle(cornerRadius: 8)
                 .fill(
                     LinearGradient(
@@ -52,7 +57,8 @@ struct StationImageCoverWidget: View {
                         startPoint: .top,
                         endPoint: .bottom
                     )
-                ).frame(width: 70, height: 70)
+                )
+                .frame(width: size, height: size)
                 .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 2)
         }
     }
