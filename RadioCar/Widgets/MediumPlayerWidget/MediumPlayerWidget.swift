@@ -32,21 +32,44 @@ struct MediumPlayerView: View {
             VStack(spacing: 16) {
                 Spacer()
                 HStack(spacing: 12) {
-                    
+
                     StationImageCoverWidget(imageUrl : playerState.currentStation?.favicon)
-                    
-                    VStack(){
-                        
+
+                    VStack(alignment: .leading, spacing: 4) {
+
                         Text(playerState.currentStation?.name ?? "Choose station")
                             .font(.headline)
                             .foregroundColor(.white)
                             .lineLimit(2)
-                      
-                    }
-                    
 
-                    
-                    
+                        // Show song metadata if available
+                        if let metadata = playerState.songMetadata, !metadata.isEmpty {
+                            HStack(spacing: 6) {
+                                Image(systemName: "music.note")
+                                    .font(.caption)
+                                    .foregroundColor(.white.opacity(0.8))
+
+                                MarqueeText(text: metadata, font: .subheadline, speed: 30)
+                                    .foregroundColor(.white.opacity(0.9))
+                                    .frame(height: 20)
+                            }
+                        } else if playerState.isPlaying {
+                            HStack(spacing: 4) {
+                                ProgressView()
+                                    .scaleEffect(0.7)
+                                    .progressViewStyle(CircularProgressViewStyle(tint: .white.opacity(0.6)))
+
+                                Text("Loading metadata...")
+                                    .font(.caption)
+                                    .foregroundColor(.white.opacity(0.6))
+                            }
+                        }
+
+                    }
+
+
+
+
                     Spacer()
                 }
                 .padding(.horizontal)

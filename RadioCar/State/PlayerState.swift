@@ -43,11 +43,15 @@ final class PlayerState: ObservableObject {
     func playStation(_ station: Station) {
         if currentStation?.id != station.id {
             currentStation = station
+            // Clear previous metadata
+            songMetadata = nil
         }
         isPlaying = true
 
-        if let urlString = station.url, let stationUrl = URL(string: urlString) {
-            //ICYMetadataFetcher.shared.fetchMetadata(from: stationUrl)
+        // Start fetching metadata
+        if let urlString = station.url_resolved ?? station.url,
+           let stationUrl = URL(string: urlString) {
+            ICYMetadataFetcher.shared.fetchMetadata(from: stationUrl)
         }
     }
 
@@ -58,6 +62,8 @@ final class PlayerState: ObservableObject {
     func stop() {
         isPlaying = false
         currentStation = nil
+        songMetadata = nil
+        ICYMetadataFetcher.shared.stopFetching()
     }
 
     func playNext() {
