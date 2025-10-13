@@ -6,7 +6,8 @@
 //
 import Foundation
 import SwiftData
-/*
+
+@available(iOS 17.0, *)
 @Model
 class RecentStation {
     @Attribute(.unique) var stationuuid: String
@@ -16,5 +17,5 @@ class RecentStation {
         self.stationuuid = stationuuid
         self.lastPlayedTime = lastPlayedTime
     }
-}*/
+}
 

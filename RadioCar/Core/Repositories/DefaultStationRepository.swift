@@ -9,10 +9,12 @@ import Foundation
 
 final class DefaultStationRepository: StationRepository {
     private let remote: RadioAPIService
+    private let storage: LocalStationStorage
     private var cachedStations: [Station] = []
 
-    init(remote: RadioAPIService) {
+    init(remote: RadioAPIService, storage: LocalStationStorage = InMemoryStationStorage()) {
         self.remote = remote
+        self.storage = storage
     }
 
     func fetchStations(
@@ -35,12 +37,95 @@ final class DefaultStationRepository: StationRepository {
         return stations
     }
 
+    func fetchStationGroups(
+        country: String,
+        offset: Int,
+        limit: Int
+    ) async throws -> [StationGroup] {
+        let stations = try await fetchStations(country: country, offset: offset, limit: limit)
+        return groupStations(stations)
+    }
+
+    func getFavoriteStationGroups() async throws -> [StationGroup] {
+        let favoriteUuids = try await storage.getFavoriteStationUuids()
+        let favoriteStations = cachedStations.filter { station in
+            guard let uuid = station.stationuuid else { return false }
+            return favoriteUuids.contains(uuid)
+        }
+        return groupStations(favoriteStations)
+    }
+
+    func getRecentStationGroups() async throws -> [StationGroup] {
+        let recentUuids = try await storage.getRecentStationUuids()
+        let recentStations = cachedStations.filter { station in
+            guard let uuid = station.stationuuid else { return false }
+            return recentUuids.contains(uuid)
+        }
+        // Sort by recent order
+        let sortedStations = recentStations.sorted { station1, station2 in
+            guard let uuid1 = station1.stationuuid, let uuid2 = station2.stationuuid else { return false }
+            guard let index1 = recentUuids.firstIndex(of: uuid1),
+                  let index2 = recentUuids.firstIndex(of: uuid2) else { return false }
+            return index1 < index2
+        }
+        return groupStations(sortedStations)
+    }
+
+    func addToFavorites(stationUuid: String) async throws {
+        try await storage.addToFavorites(stationUuid: stationUuid)
+    }
+
+    func removeFromFavorites(stationUuid: String) async throws {
+        try await storage.removeFromFavorites(stationUuid: stationUuid)
+    }
+
+    func isFavorite(stationUuid: String) async throws -> Bool {
+        try await storage.isFavorite(stationUuid: stationUuid)
+    }
+
+    func addToRecent(stationUuid: String) async throws {
+        try await storage.addToRecent(stationUuid: stationUuid)
+    }
+
+    func removeFromRecent(stationUuid: String) async throws {
+        try await storage.removeFromRecent(stationUuid: stationUuid)
+    }
+
     func saveStations(_ stations: [Station]) async throws {
-        // Ти можеш реалізувати збереження у файл, UserDefaults або SwiftData/CoreData
         self.cachedStations = stations
+        try await storage.saveStations(stations)
     }
 
     func getCachedStations() async throws -> [Station] {
         return cachedStations
+    }
+
+    // MARK: - Private Helpers
+
+    private func groupStations(_ stations: [Station]) -> [StationGroup] {
+        let grouped = Dictionary(grouping: stations) { $0.name ?? "Unknown" }
+
+        return grouped.map { name, stationsInGroup in
+            let streams = stationsInGroup.map { station in
+                StationStream(
+                    stationUuid: station.stationuuid ?? UUID().uuidString,
+                    url: station.url_resolved ?? station.url ?? "",
+                    bitrate: station.bitrate ?? 128
+                )
+            }
+
+            let favicon = stationsInGroup.first?.favicon ?? ""
+            let countryCode = stationsInGroup.first?.countrycode
+
+            return StationGroup(
+                name: name,
+                streams: streams,
+                stations: stationsInGroup,
+                favicon: favicon,
+                isFavorite: false,
+                countryCode: countryCode
+            )
+        }
+        .sorted { $0.name < $1.name }
     }
 }
