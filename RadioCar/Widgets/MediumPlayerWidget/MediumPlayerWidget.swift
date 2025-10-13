@@ -88,10 +88,9 @@ struct MediumPlayerView: View {
                 
                 
             }.padding()
-            
-      
-            
-        }.padding().frame(width: 20, height: 30)
+        }
+        .clipped() // Prevents content from overflowing
+        .padding()
     }
 }
 

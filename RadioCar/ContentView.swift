@@ -12,6 +12,7 @@ import SwiftData
 struct ContentView: View {
     @StateObject private var viewModel: StationsViewModel
     @ObservedObject private var playerState = PlayerState.shared
+    @State private var showBluetoothSettings = false
 
     init() {
         let radioAPI = RadioAPIService()
@@ -23,21 +24,29 @@ struct ContentView: View {
         NavigationView {
             VStack(spacing: 0) {
                 HStack {
-                    ControlsWidget().padding(.leading, 16)
-                        .padding(.top, 8).padding(.bottom, 8).padding(.trailing, 0)
+                    ControlsWidget(onSettingsTap: {
+                        print("⚙️ Settings tapped - opening Bluetooth settings")
+                        showBluetoothSettings = true
+                    })
+                    .padding(.leading, 16)
+                    .padding(.top, 8)
+                    .padding(.bottom, 8)
+                    .padding(.trailing, 0)
+
                     MediumPlayerView()
-                        .frame(maxWidth: .infinity).padding(.trailing, 8)
-
-
-                }.frame(height: UIScreen.main.bounds.height * 0.45)
+                        .frame(maxWidth: .infinity)
+                        .padding(.trailing, 8)
+                }
+                .frame(height: UIScreen.main.bounds.height * 0.45)
 
 
 
                 StationListView(playerState: playerState, viewModel: viewModel, stations: viewModel.stations)
                     .frame(maxWidth: .infinity)
                     .frame(height: UIScreen.main.bounds.height * 0.55).background(Color.black)
-            }.background(Color.black)
-            //.navigationTitle("RadioCar")
+            }
+            .background(Color.black)
+            .navigationBarHidden(true)
             .task {
                 await viewModel.loadStations()
             }
@@ -47,6 +56,14 @@ struct ContentView: View {
                 if !newValue { viewModel.errorMessage = nil }
             }), actions: {}) {
                 Text(viewModel.errorMessage ?? "Unknown error")
+            }
+        }
+        .navigationViewStyle(.stack)
+        .sheet(isPresented: $showBluetoothSettings) {
+            if #available(iOS 17.0, *) {
+                BluetoothSettingsView()
+            } else {
+                BluetoothConnectionView()
             }
         }
     }

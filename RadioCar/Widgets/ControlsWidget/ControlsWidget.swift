@@ -10,10 +10,12 @@ import SwiftUI
 import SwiftUI
 
 struct ControlsWidget: View {
+    var onSettingsTap: (() -> Void)?
+
     var body: some View {
         VStack(spacing: 6) {
             Spacer()
-            
+
             ControlIconButton(systemName: "phone.fill", color: .green) {
                 openDialer()
             }
@@ -22,9 +24,11 @@ struct ControlsWidget: View {
                 openMapsApp()
             }
             Spacer()
-            ControlIconButton(systemName: "gearshape.fill",color: .gray) {
+            ControlIconButton(systemName: "gearshape.fill", color: .gray) {
+                print("⚙️ Settings button tapped")
+                onSettingsTap?()
             }
-            
+
             Spacer()
         }
         .padding(.vertical, 12)
