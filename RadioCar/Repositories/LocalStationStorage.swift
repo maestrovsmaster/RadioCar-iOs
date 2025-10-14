@@ -24,6 +24,86 @@ protocol LocalStationStorage {
     func getRecentStationUuids() async throws -> [String]
 }
 
+/// UserDefaults-based storage for iOS 15-16 (persists across app restarts)
+final class UserDefaultsStationStorage: LocalStationStorage {
+    private let defaults = UserDefaults.standard
+    private let favoritesKey = "RadioCar.Favorites"
+    private let recentKey = "RadioCar.Recent"
+    private let stationsCacheKey = "RadioCar.StationsCache"
+
+    init() {
+        print("💾 Using UserDefaults storage for iOS 15-16")
+    }
+
+    func saveStations(_ stations: [Station]) async throws {
+        if let encoded = try? JSONEncoder().encode(stations) {
+            defaults.set(encoded, forKey: stationsCacheKey)
+            print("💾 Saved \(stations.count) stations to UserDefaults")
+        }
+    }
+
+    func getCachedStations() async throws -> [Station] {
+        guard let data = defaults.data(forKey: stationsCacheKey),
+              let stations = try? JSONDecoder().decode([Station].self, from: data) else {
+            return []
+        }
+        print("💾 Loaded \(stations.count) stations from UserDefaults")
+        return stations
+    }
+
+    // Favorites
+    func addToFavorites(stationUuid: String) async throws {
+        var favorites = Set(defaults.stringArray(forKey: favoritesKey) ?? [])
+        favorites.insert(stationUuid)
+        defaults.set(Array(favorites), forKey: favoritesKey)
+        print("💾 Added to favorites: \(stationUuid)")
+    }
+
+    func removeFromFavorites(stationUuid: String) async throws {
+        var favorites = Set(defaults.stringArray(forKey: favoritesKey) ?? [])
+        favorites.remove(stationUuid)
+        defaults.set(Array(favorites), forKey: favoritesKey)
+        print("💾 Removed from favorites: \(stationUuid)")
+    }
+
+    func getFavoriteStationUuids() async throws -> [String] {
+        let favorites = defaults.stringArray(forKey: favoritesKey) ?? []
+        print("💾 Loaded \(favorites.count) favorites from UserDefaults")
+        return favorites
+    }
+
+    func isFavorite(stationUuid: String) async throws -> Bool {
+        let favorites = Set(defaults.stringArray(forKey: favoritesKey) ?? [])
+        return favorites.contains(stationUuid)
+    }
+
+    // Recent
+    func addToRecent(stationUuid: String) async throws {
+        var recent = defaults.stringArray(forKey: recentKey) ?? []
+        recent.removeAll { $0 == stationUuid }
+        recent.insert(stationUuid, at: 0)
+        if recent.count > 50 {
+            recent = Array(recent.prefix(50))
+        }
+        defaults.set(recent, forKey: recentKey)
+        print("💾 Added to recent: \(stationUuid)")
+    }
+
+    func removeFromRecent(stationUuid: String) async throws {
+        var recent = defaults.stringArray(forKey: recentKey) ?? []
+        recent.removeAll { $0 == stationUuid }
+        defaults.set(recent, forKey: recentKey)
+        print("💾 Removed from recent: \(stationUuid)")
+    }
+
+    func getRecentStationUuids() async throws -> [String] {
+        let recent = defaults.stringArray(forKey: recentKey) ?? []
+        print("💾 Loaded \(recent.count) recent stations from UserDefaults")
+        return recent
+    }
+}
+
+/// In-memory storage (fallback only, not used by default)
 final class InMemoryStationStorage: LocalStationStorage {
     private var cache: [Station] = []
     private var favorites: Set<String> = []

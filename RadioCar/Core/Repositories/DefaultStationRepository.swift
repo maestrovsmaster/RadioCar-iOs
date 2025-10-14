@@ -12,9 +12,10 @@ final class DefaultStationRepository: StationRepository {
     private let storage: LocalStationStorage
     private var cachedStations: [Station] = []
 
-    init(remote: RadioAPIService, storage: LocalStationStorage = InMemoryStationStorage()) {
+    init(remote: RadioAPIService, storage: LocalStationStorage = UserDefaultsStationStorage()) {
         self.remote = remote
         self.storage = storage
+        print("📦 DefaultStationRepository initialized with \(type(of: storage))")
     }
 
     func fetchStations(
