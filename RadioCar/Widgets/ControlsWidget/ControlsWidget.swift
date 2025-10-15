@@ -10,23 +10,25 @@ import SwiftUI
 import SwiftUI
 
 struct ControlsWidget: View {
+    var onBluetoothTap: (() -> Void)?
     var onSettingsTap: (() -> Void)?
 
     var body: some View {
         VStack(spacing: 6) {
             Spacer()
 
-            ControlIconButton(systemName: "phone.fill", color: AppColors.green) {
-                openDialer()
+            ControlIconButton(systemName: "gearshape.fill", color: AppColors.gray) {
+                print("⚙️ Settings button tapped")
+                onSettingsTap?()
             }
             Spacer()
             ControlIconButton(systemName: "map.fill", color: AppColors.blue) {
                 openMapsApp()
             }
             Spacer()
-            ControlIconButton(systemName: "gearshape.fill", color: AppColors.gray) {
-                print("⚙️ Settings button tapped")
-                onSettingsTap?()
+            ControlIconButton(systemName: "antenna.radiowaves.left.and.right", color: AppColors.green) {
+                print("📡 Bluetooth button tapped")
+                onBluetoothTap?()
             }
 
             Spacer()
@@ -54,25 +56,6 @@ struct ControlsWidget: View {
 }
 
 
-private func openDialer() {
-    if let url = URL(string: "telprompt://") {
-        UIApplication.shared.open(url) { success in
-            if !success {
-                // Handle the case where the URL couldn't be opened
-                print("Failed to open dialer with telprompt://")
-                // Fallback to tel:// if telprompt:// isn't supported for some reason (very rare)
-                if let telURL = URL(string: "tel://") {
-                    UIApplication.shared.open(telURL) { success in
-                        if !success {
-                            print("Failed to open dialer with tel://")
-                            // You might want to show an alert to the user here
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
 
 private func openMapsApp() {
     if let url = URL(string: "http://maps.apple.com/") {

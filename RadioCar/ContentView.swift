@@ -14,6 +14,7 @@ struct ContentView: View {
     @StateObject private var viewModel: StationsViewModel
     @ObservedObject private var playerState = PlayerState.shared
     @State private var showBluetoothSettings = false
+    @State private var showGeneralSettings = false
 
     init() {
         let radioAPI = RadioAPIService()
@@ -32,9 +33,14 @@ struct ContentView: View {
 
                 // 2️⃣ Controls + Player Row - Fixed height
                 HStack(spacing: 8) {
-                    ControlsWidget(onSettingsTap: {
-                        showBluetoothSettings = true
-                    })
+                    ControlsWidget(
+                        onBluetoothTap: {
+                            showBluetoothSettings = true
+                        },
+                        onSettingsTap: {
+                            showGeneralSettings = true
+                        }
+                    )
                     .frame(width: 80)
 
                     MediumPlayerView()
@@ -68,6 +74,9 @@ struct ContentView: View {
             } else {
                 BluetoothConnectionView()
             }
+        }
+        .sheet(isPresented: $showGeneralSettings) {
+            GeneralSettingsView()
         }
     }
 }
