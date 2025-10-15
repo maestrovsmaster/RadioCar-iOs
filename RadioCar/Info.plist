@@ -24,5 +24,9 @@
 	<string>RadioCar needs Bluetooth access to automatically start playing when you connect your car audio system.</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
 	<string>RadioCar uses Bluetooth to detect when you connect to your car and automatically start playing.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>RadioCar needs your location to display your current speed and location while driving.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>RadioCar needs your location to display your current speed and location while driving.</string>
 </dict>
 </plist>

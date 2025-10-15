@@ -29,32 +29,85 @@ struct StationListView: View {
             .padding(.vertical, 8)
             .background(Color.black.opacity(0.5))
 
-            // Station groups list
-            if viewModel.stationGroups.isEmpty {
-                // Fallback to simple station list
-                List(stations) { station in
-                    StationItemView(station: station)
-                        .contentShape(Rectangle())
-                        .listRowBackground(Color.black)
+            // Horizontal scrollable grid
+            ScrollView(.horizontal, showsIndicators: false) {
+                LazyHGrid(rows: [
+                    GridItem(.fixed(120), spacing: 8),
+                    GridItem(.fixed(120), spacing: 8)
+                ], spacing: 8) {
+                    ForEach(viewModel.stationGroups) { group in
+                        StationGridTile(stationGroup: group, viewModel: viewModel)
+                    }
                 }
-                .listStyle(PlainListStyle())
-                .background(Color.black.ignoresSafeArea())
-            } else {
-                // Show station groups
-                List(viewModel.stationGroups) { group in
-                    StationGroupItemView(stationGroup: group, viewModel: viewModel)
-                        .contentShape(Rectangle())
-                        .listRowBackground(Color.black)
-                }
-                .listStyle(PlainListStyle())
-                .background(Color.black.ignoresSafeArea())
+                .padding(.horizontal, 8)
+                .padding(.vertical, 8)
             }
+            .background(Color.black)
         }
         .onReceive(NotificationCenter.default.publisher(for: .nextTrackRequested)) { _ in
             playerState.playNext()
         }
         .onReceive(NotificationCenter.default.publisher(for: .previousTrackRequested)) { _ in
             playerState.playPrevious()
+        }
+    }
+}
+
+// MARK: - Horizontal Grid Tile
+struct StationGridTile: View {
+    let stationGroup: StationGroup
+    @ObservedObject var viewModel: StationsViewModel
+    @ObservedObject private var playerState = PlayerState.shared
+
+    var body: some View {
+        VStack(spacing: 8) {
+            // Station image with favorite badge
+            ZStack(alignment: .topTrailing) {
+                AsyncImage(url: URL(string: stationGroup.favicon)) { image in
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } placeholder: {
+                    Image(systemName: "music.note")
+                        .font(.largeTitle)
+                        .foregroundColor(.gray)
+                }
+                .frame(width: 100, height: 80)
+                .background(Color.gray.opacity(0.2))
+                .cornerRadius(12)
+                .clipped()
+
+                // Favorite button overlay
+                Button(action: {
+                    Task {
+                        await viewModel.toggleFavorite(for: stationGroup)
+                    }
+                }) {
+                    Image(systemName: stationGroup.isFavorite ? "heart.fill" : "heart")
+                        .foregroundColor(stationGroup.isFavorite ? .red : .white)
+                        .font(.caption)
+                        .padding(6)
+                        .background(Color.black.opacity(0.6))
+                        .clipShape(Circle())
+                }
+                .buttonStyle(PlainButtonStyle())
+                .padding(4)
+            }
+
+            // Station name
+            Text(stationGroup.name)
+                .font(.caption)
+                .foregroundColor(.white)
+                .lineLimit(2)
+                .multilineTextAlignment(.center)
+                .frame(width: 100, height: 30)
+        }
+        .frame(width: 110, height: 120)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            Task {
+                await viewModel.playStationGroup(stationGroup)
+            }
         }
     }
 }

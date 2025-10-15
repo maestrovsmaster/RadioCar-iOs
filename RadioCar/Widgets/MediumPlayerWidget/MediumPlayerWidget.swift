@@ -85,12 +85,12 @@ struct MediumPlayerView: View {
                 Spacer()
                 
                 PlayStopPrevNextView()
-                
-                
-            }.padding()
+
+
+            }.padding(.horizontal, 8)
+             .padding(.vertical, 4)
         }
         .clipped() // Prevents content from overflowing
-        .padding()
     }
 }
 

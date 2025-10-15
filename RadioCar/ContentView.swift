@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 
+import SwiftUI
 
 struct ContentView: View {
     @StateObject private var viewModel: StationsViewModel
@@ -22,28 +23,30 @@ struct ContentView: View {
 
     var body: some View {
         NavigationView {
-            VStack(spacing: 0) {
-                HStack {
+            VStack(spacing: 8) {
+
+                // 1️⃣ Speedometer Card - Fixed height
+                SpeedometerCard()
+                    .frame(height: 180)
+                    .padding(.horizontal, 8)
+
+                // 2️⃣ Controls + Player Row - Fixed height
+                HStack(spacing: 8) {
                     ControlsWidget(onSettingsTap: {
-                        print("⚙️ Settings tapped - opening Bluetooth settings")
                         showBluetoothSettings = true
                     })
-                    .padding(.leading, 16)
-                    .padding(.top, 8)
-                    .padding(.bottom, 8)
-                    .padding(.trailing, 0)
+                    .frame(width: 80)
 
                     MediumPlayerView()
                         .frame(maxWidth: .infinity)
-                        .padding(.trailing, 8)
                 }
-                .frame(height: UIScreen.main.bounds.height * 0.45)
+                .frame(height: 260)
+                .padding(.horizontal, 4)
 
-
-
+                // 3️⃣ Station List - takes remaining space
                 StationListView(playerState: playerState, viewModel: viewModel, stations: viewModel.stations)
                     .frame(maxWidth: .infinity)
-                    .frame(height: UIScreen.main.bounds.height * 0.55).background(Color.black)
+                    .frame(maxHeight: .infinity)
             }
             .background(Color.black)
             .navigationBarHidden(true)
@@ -69,3 +72,14 @@ struct ContentView: View {
     }
 }
 
+// ✅ Прев’ю
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        Group {
+            ContentView()
+                .preferredColorScheme(.light)
+            ContentView()
+                .preferredColorScheme(.dark)
+        }
+    }
+}
