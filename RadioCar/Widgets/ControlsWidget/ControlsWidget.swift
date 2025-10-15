@@ -17,18 +17,22 @@ struct ControlsWidget: View {
         VStack(spacing: 6) {
             Spacer()
 
-            ControlIconButton(systemName: "gearshape.fill", color: AppColors.gray) {
-                print("⚙️ Settings button tapped")
-                onSettingsTap?()
+           /* ControlIconButton(systemName: "bluetooth", color: AppColors.blue) {
+                print("📡 Bluetooth button tapped")
+                onBluetoothTap?()
+            }*/
+            ControlImageButton(imageName: "bluetooth_24dp", backgroundColor: AppColors.blue) {
+                print("📡 Bluetooth button tapped")
+                onBluetoothTap?()
             }
             Spacer()
-            ControlIconButton(systemName: "map.fill", color: AppColors.blue) {
+            ControlIconButton(systemName: "map.fill", color: AppColors.green) {
                 openMapsApp()
             }
             Spacer()
-            ControlIconButton(systemName: "antenna.radiowaves.left.and.right", color: AppColors.green) {
-                print("📡 Bluetooth button tapped")
-                onBluetoothTap?()
+            ControlIconButton(systemName: "gearshape.fill", color: AppColors.gray) {
+                print("⚙️ Settings button tapped")
+                onSettingsTap?()
             }
 
             Spacer()
