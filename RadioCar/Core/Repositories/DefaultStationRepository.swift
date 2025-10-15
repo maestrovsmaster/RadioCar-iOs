@@ -10,6 +10,7 @@ import Foundation
 final class DefaultStationRepository: StationRepository {
     private let remote: RadioAPIService
     private let storage: LocalStationStorage
+    private let cache = StationCache()
     private var cachedStations: [Station] = []
 
     init(remote: RadioAPIService, storage: LocalStationStorage = UserDefaultsStationStorage()) {
@@ -23,8 +24,22 @@ final class DefaultStationRepository: StationRepository {
         offset: Int,
         limit: Int
     ) async throws -> [Station] {
+        let cacheKey = StationCache.CacheKey.country(country, offset: offset, limit: limit)
+
+        // Check cache first
+        if let cachedStations = await cache.get(cacheKey) {
+            self.cachedStations = cachedStations
+            return cachedStations
+        }
+
+        // Cache miss - fetch from remote
+        print("📡 Fetching stations from remote for country: \(country)")
         let stations = try await remote.fetchStations(country: country, offset: offset, limit: limit)
+
+        // Store in cache
+        await cache.set(cacheKey, stations: stations)
         self.cachedStations = stations
+
         return stations
     }
 
@@ -33,8 +48,22 @@ final class DefaultStationRepository: StationRepository {
         offset: Int,
         limit: Int
     ) async throws -> [Station] {
+        let cacheKey = StationCache.CacheKey.search(searchTerm, offset: offset, limit: limit)
+
+        // Check cache first
+        if let cachedStations = await cache.get(cacheKey) {
+            self.cachedStations = cachedStations
+            return cachedStations
+        }
+
+        // Cache miss - fetch from remote
+        print("📡 Fetching stations from remote for search: \(searchTerm)")
         let stations = try await remote.fetchStationsByName(searchTerm: searchTerm, offset: offset, limit: limit)
+
+        // Store in cache
+        await cache.set(cacheKey, stations: stations)
         self.cachedStations = stations
+
         return stations
     }
 
@@ -99,6 +128,29 @@ final class DefaultStationRepository: StationRepository {
 
     func getCachedStations() async throws -> [Station] {
         return cachedStations
+    }
+
+    // MARK: - Cache Management
+
+    /// Clears all cached station data
+    func clearCache() async {
+        await cache.clear()
+        cachedStations = []
+    }
+
+    /// Invalidates cache for a specific country
+    func invalidateCacheForCountry(_ country: String) async {
+        await cache.invalidateMatching { key in
+            if case .country(let cachedCountry, _, _) = key {
+                return cachedCountry == country
+            }
+            return false
+        }
+    }
+
+    /// Returns cache statistics
+    func getCacheStats() async -> (total: Int, valid: Int, expired: Int) {
+        await cache.stats()
     }
 
     // MARK: - Private Helpers

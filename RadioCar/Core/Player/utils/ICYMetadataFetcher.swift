@@ -10,6 +10,7 @@ final class ICYMetadataFetcher: NSObject, URLSessionDataDelegate {
 
     static let shared = ICYMetadataFetcher()
 
+    private let dataQueue = DispatchQueue(label: "com.radiocar.metadata", qos: .userInitiated)
     private var metadataInterval: Int = 0
     private var receivedData = Data()
     private var bytesRead = 0
@@ -77,50 +78,57 @@ final class ICYMetadataFetcher: NSObject, URLSessionDataDelegate {
     }
 
     func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
-        receivedData.append(data)
-        bytesRead += data.count
+        dataQueue.async { [weak self] in
+            guard let self = self else { return }
 
-        guard metadataInterval > 0 else { return }
+            self.receivedData.append(data)
+            self.bytesRead += data.count
 
-        // Process metadata blocks
-        while receivedData.count > metadataInterval {
-            // Need at least: metadataInterval (audio) + 1 (length byte)
-            guard receivedData.count > metadataInterval else { break }
+            guard self.metadataInterval > 0 else { return }
 
-            // Skip audio data (we don't need it)
-            receivedData.removeFirst(metadataInterval)
+            // Process metadata blocks
+            while true {
+                // Need at least: metadataInterval (audio) + 1 (length byte)
+                guard self.receivedData.count > self.metadataInterval else { break }
 
-            // Read metadata length byte
-            guard receivedData.count > 0 else { break }
-            let metadataLengthByte = receivedData.removeFirst()
-            let metadataLength = Int(metadataLengthByte) * 16
+                // Skip audio data (we don't need it)
+                self.receivedData.removeFirst(self.metadataInterval)
 
-            // If no metadata, continue to next block
-            if metadataLength == 0 {
-                continue
-            }
+                // Peek at the metadata length byte without removing it yet
+                // Use safe access to avoid out-of-bounds crash
+                guard let metadataLengthByte = self.receivedData.first else { break }
+                let metadataLength = Int(metadataLengthByte) * 16
 
-            // Wait for full metadata block
-            guard receivedData.count >= metadataLength else {
-                // Not enough data yet, put the length byte back and wait
-                receivedData.insert(metadataLengthByte, at: 0)
-                break
-            }
+                // Check if we have enough data for the complete metadata block
+                // We need: 1 byte (length) + metadataLength bytes (actual metadata)
+                guard self.receivedData.count >= (1 + metadataLength) else {
+                    // Not enough data yet, wait for more
+                    break
+                }
 
-            // Extract metadata
-            let metadataBytes = receivedData.prefix(metadataLength)
-            receivedData.removeFirst(metadataLength)
+                // Now we can safely remove the length byte
+                self.receivedData.removeFirst()
 
-            // Parse metadata
-            if let metadataString = String(data: metadataBytes, encoding: .utf8)?.trimmingCharacters(in: .controlCharacters),
-               let title = parseTitle(from: metadataString),
-               !title.isEmpty,
-               title != lastMetadata {
-                lastMetadata = title
-                print("🎵 New metadata: \(title)")
+                // If no metadata, continue to next block
+                if metadataLength == 0 {
+                    continue
+                }
 
-                DispatchQueue.main.async {
-                    PlayerState.shared.songMetadata = title
+                // Extract metadata (we already confirmed we have enough data)
+                let metadataBytes = self.receivedData.prefix(metadataLength)
+                self.receivedData.removeFirst(metadataLength)
+
+                // Parse metadata
+                if let metadataString = String(data: metadataBytes, encoding: .utf8)?.trimmingCharacters(in: .controlCharacters),
+                   let title = self.parseTitle(from: metadataString),
+                   !title.isEmpty,
+                   title != self.lastMetadata {
+                    self.lastMetadata = title
+                    print("🎵 New metadata: \(title)")
+
+                    DispatchQueue.main.async {
+                        PlayerState.shared.songMetadata = title
+                    }
                 }
             }
         }
