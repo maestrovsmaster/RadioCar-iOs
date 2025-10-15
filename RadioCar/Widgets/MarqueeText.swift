@@ -13,21 +13,29 @@ struct MarqueeText: View {
     @State private var textWidth: CGFloat? = nil
     @State private var containerWidth: CGFloat? = nil
     @State private var animationOffset: CGFloat = 0
+    @State private var hasStartedAnimation = false
 
     var body: some View {
         GeometryReader { geo in
             let containerW = geo.size.width
 
-            HStack {
+            HStack(spacing: 0) {
                 Text(text)
                     .font(font)
+                    .lineLimit(1)
+                    .fixedSize(horizontal: true, vertical: false)
                     .background(
                         GeometryReader { textGeo -> Color in
                             DispatchQueue.main.async {
-                                self.textWidth = textGeo.size.width
-                                self.containerWidth = containerW
-                                if textGeo.size.width > containerW {
-                                    startAnimation(textWidth: textGeo.size.width, containerWidth: containerW)
+                                let newTextWidth = textGeo.size.width
+                                let newContainerWidth = containerW
+
+                                // Only start animation once
+                                if !hasStartedAnimation && newTextWidth > newContainerWidth {
+                                    self.textWidth = newTextWidth
+                                    self.containerWidth = newContainerWidth
+                                    self.hasStartedAnimation = true
+                                    startAnimation(textWidth: newTextWidth, containerWidth: newContainerWidth)
                                 }
                             }
                             return Color.clear
@@ -35,17 +43,24 @@ struct MarqueeText: View {
                     )
                     .offset(x: animationOffset)
             }
+            .frame(width: containerW, alignment: .leading)
             .clipped()
         }
         .frame(height: fontSizeToHeight(font: font))
     }
 
     func startAnimation(textWidth: CGFloat, containerWidth: CGFloat) {
+        // Start from right side (containerWidth)
+        // Move to left until text completely exits (-textWidth)
         let distance = textWidth + containerWidth
         let duration = distance / CGFloat(speed)
 
+        // Set initial position to right
+        animationOffset = containerWidth
+
         withAnimation(.linear(duration: duration).repeatForever(autoreverses: false)) {
-            animationOffset = -distance
+            // Move to left (negative direction)
+            animationOffset = -textWidth
         }
     }
 

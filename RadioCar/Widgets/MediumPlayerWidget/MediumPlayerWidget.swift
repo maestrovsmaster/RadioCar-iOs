@@ -53,7 +53,8 @@ struct MediumPlayerView: View {
                                     .foregroundColor(.white.opacity(0.9))
                                     .frame(height: 20)
                             }
-                        } else if playerState.isPlaying {
+                        } else if playerState.isPlaying && playerState.songMetadata == nil {
+                            // Only show "Loading..." if we haven't attempted to load metadata yet
                             HStack(spacing: 4) {
                                 ProgressView()
                                     .scaleEffect(0.7)

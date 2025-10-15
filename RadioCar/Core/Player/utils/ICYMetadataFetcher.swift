@@ -17,6 +17,10 @@ final class ICYMetadataFetcher: NSObject, URLSessionDataDelegate {
     private var currentStreamTask: URLSessionDataTask?
     private var session: URLSession?
     private var lastMetadata: String = ""
+    private var metadataTimeoutTimer: Timer?
+    private var hasReceivedMetadata = false
+
+    private let metadataTimeout: TimeInterval = 30.0 // 30 seconds
 
     override private init() {
         super.init()
@@ -36,6 +40,7 @@ final class ICYMetadataFetcher: NSObject, URLSessionDataDelegate {
         receivedData = Data()
         bytesRead = 0
         lastMetadata = ""
+        hasReceivedMetadata = false
 
         var request = URLRequest(url: url)
         request.setValue("1", forHTTPHeaderField: "Icy-MetaData")
@@ -44,12 +49,46 @@ final class ICYMetadataFetcher: NSObject, URLSessionDataDelegate {
         currentStreamTask = session?.dataTask(with: request)
         currentStreamTask?.resume()
 
+        // Start timeout timer
+        startMetadataTimeout()
+
         print("🎵 Started fetching metadata from: \(url)")
     }
 
     func stopFetching() {
         currentStreamTask?.cancel()
         currentStreamTask = nil
+        cancelMetadataTimeout()
+    }
+
+    private func startMetadataTimeout() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+
+            // Cancel existing timer
+            self.metadataTimeoutTimer?.invalidate()
+            self.metadataTimeoutTimer = nil
+
+            self.metadataTimeoutTimer = Timer.scheduledTimer(withTimeInterval: self.metadataTimeout, repeats: false) { [weak self] _ in
+                guard let self = self else { return }
+
+                if !self.hasReceivedMetadata {
+                    print("⏱️ Metadata timeout - no metadata received in \(self.metadataTimeout)s")
+                    // Clear "Loading metadata..." state
+                    if PlayerState.shared.songMetadata == nil {
+                        PlayerState.shared.songMetadata = ""
+                    }
+                    self.stopFetching()
+                }
+            }
+        }
+    }
+
+    private func cancelMetadataTimeout() {
+        DispatchQueue.main.async { [weak self] in
+            self?.metadataTimeoutTimer?.invalidate()
+            self?.metadataTimeoutTimer = nil
+        }
     }
 
     func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
@@ -124,10 +163,16 @@ final class ICYMetadataFetcher: NSObject, URLSessionDataDelegate {
                    !title.isEmpty,
                    title != self.lastMetadata {
                     self.lastMetadata = title
+                    self.hasReceivedMetadata = true
                     print("🎵 New metadata: \(title)")
 
                     DispatchQueue.main.async {
                         PlayerState.shared.songMetadata = title
+                    }
+
+                    // Cancel timeout since we received metadata
+                    DispatchQueue.main.async {
+                        self.cancelMetadataTimeout()
                     }
                 }
             }

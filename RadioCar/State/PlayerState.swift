@@ -15,6 +15,7 @@ final class PlayerState: ObservableObject {
     @Published var currentStation: Station?
     @Published var currentStationGroup: StationGroup?
     @Published var isPlaying: Bool = false
+    @Published var isBuffering: Bool = false
     @Published var stationList: [Station] = []
     @Published var stationGroups: [StationGroup] = []
 
@@ -46,7 +47,9 @@ final class PlayerState: ObservableObject {
             // Clear previous metadata
             songMetadata = nil
         }
-        isPlaying = true
+        // Set buffering state - actual play state will be set by AudioPlayerManager
+        isBuffering = true
+        isPlaying = false
 
         // Start fetching metadata
         if let urlString = station.url_resolved ?? station.url,
@@ -57,10 +60,12 @@ final class PlayerState: ObservableObject {
 
     func pause() {
         isPlaying = false
+        isBuffering = false
     }
 
     func stop() {
         isPlaying = false
+        isBuffering = false
         currentStation = nil
         songMetadata = nil
         ICYMetadataFetcher.shared.stopFetching()
