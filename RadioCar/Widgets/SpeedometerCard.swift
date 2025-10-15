@@ -53,7 +53,7 @@ struct SpeedometerCard: View {
                         HStack(spacing: 6) {
                             Image(systemName: "bluetooth.connected")
                                 .font(.caption)
-                                .foregroundColor(.blue)
+                                .foregroundColor(AppColors.blue)
 
                             Text(bluetoothManager.currentDeviceName ?? "Connected")
                                 .font(.caption)
@@ -93,12 +93,12 @@ struct SpeedometerCard: View {
                 HStack(spacing: 4) {
                     Image(systemName: locationManager.isAuthorized ? "location.fill" : "location.slash")
                         .font(.caption2)
-                        .foregroundColor(.cyan)
+                        .foregroundColor(AppColors.blueCold)
 
                     Text(locationManager.currentLocation)
                         .font(.subheadline)
                         .fontWeight(.medium)
-                        .foregroundColor(.cyan)
+                        .foregroundColor(AppColors.blueCold)
                 }
                 .padding(.bottom, 8)
             }

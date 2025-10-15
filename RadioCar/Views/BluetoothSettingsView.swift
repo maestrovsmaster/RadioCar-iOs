@@ -22,7 +22,7 @@ struct BluetoothSettingsView: View {
                 Section("Connection Status") {
                     HStack {
                         Image(systemName: bluetoothManager.currentDeviceName != nil ? "bluetooth.connected" : "bluetooth")
-                            .foregroundColor(bluetoothManager.currentDeviceName != nil ? .blue : .gray)
+                            .foregroundColor(bluetoothManager.currentDeviceName != nil ? AppColors.blue : AppColors.gray)
                             .font(.title2)
 
                         VStack(alignment: .leading, spacing: 4) {
@@ -32,7 +32,7 @@ struct BluetoothSettingsView: View {
                             if let deviceName = bluetoothManager.currentDeviceName {
                                 Text("Connected: \(deviceName)")
                                     .font(.subheadline)
-                                    .foregroundColor(.green)
+                                    .foregroundColor(AppColors.green)
                             } else {
                                 Text("Not connected")
                                     .font(.subheadline)
@@ -116,7 +116,7 @@ struct BluetoothDeviceRow: View {
             // Device icon
             Image(systemName: "speaker.wave.2.circle.fill")
                 .font(.title2)
-                .foregroundColor(.blue)
+                .foregroundColor(AppColors.blue)
 
             // Device info
             VStack(alignment: .leading, spacing: 4) {
@@ -131,7 +131,7 @@ struct BluetoothDeviceRow: View {
                     if bluetoothManager.currentDeviceName == device.name {
                         Text("• Connected")
                             .font(.caption)
-                            .foregroundColor(.green)
+                            .foregroundColor(AppColors.green)
                     }
                 }
 

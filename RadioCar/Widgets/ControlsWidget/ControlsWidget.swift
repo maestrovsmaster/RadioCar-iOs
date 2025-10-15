@@ -16,15 +16,15 @@ struct ControlsWidget: View {
         VStack(spacing: 6) {
             Spacer()
 
-            ControlIconButton(systemName: "phone.fill", color: .green) {
+            ControlIconButton(systemName: "phone.fill", color: AppColors.green) {
                 openDialer()
             }
             Spacer()
-            ControlIconButton(systemName: "map.fill", color: .blue) {
+            ControlIconButton(systemName: "map.fill", color: AppColors.blue) {
                 openMapsApp()
             }
             Spacer()
-            ControlIconButton(systemName: "gearshape.fill", color: .gray) {
+            ControlIconButton(systemName: "gearshape.fill", color: AppColors.gray) {
                 print("⚙️ Settings button tapped")
                 onSettingsTap?()
             }

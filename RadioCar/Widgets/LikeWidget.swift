@@ -9,7 +9,7 @@ struct LikeWidget: View {
             Button(action: onLikeClick) {
                 Image(liked ? "ic_favorite_24" : "ic_favorite_stroke_24")
                     .renderingMode(.template)
-                    .foregroundColor(Color(red: 198/255, green: 207/255, blue: 213/255))
+                    .foregroundColor(AppColors.grayLight)
                     .accessibilityLabel("Like")
             }
             .buttonStyle(PlainButtonStyle())

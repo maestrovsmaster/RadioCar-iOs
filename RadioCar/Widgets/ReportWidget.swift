@@ -6,7 +6,7 @@ struct ReportWidget: View {
         Button(action: onReportClick) {
             Image("flag_24dp_")
                 .renderingMode(.template)
-                .foregroundColor(Color(red: 236/255, green: 137/255, blue: 137/255))
+                .foregroundColor(AppColors.error)
                 .accessibilityLabel("Report")
         }
         .buttonStyle(PlainButtonStyle())
