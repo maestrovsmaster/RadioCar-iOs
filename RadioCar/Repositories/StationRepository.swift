@@ -33,6 +33,14 @@ protocol StationRepository {
         limit: Int
     ) async throws -> [StationGroup]
 
+    func searchStationGroups(
+        query: String,
+        country: String,
+        tag: String,
+        offset: Int,
+        limit: Int
+    ) async throws -> [StationGroup]
+
     func getFavoriteStationGroups() async throws -> [StationGroup]
     func getRecentStationGroups() async throws -> [StationGroup]
 

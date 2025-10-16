@@ -73,7 +73,46 @@ final class DefaultStationRepository: StationRepository {
         limit: Int
     ) async throws -> [StationGroup] {
         let stations = try await fetchStations(country: country, offset: offset, limit: limit)
-        return await groupStations(stations)
+        let filteredStations = StationFilters.filterStations(stations)
+        return await groupStations(filteredStations)
+    }
+
+    func searchStationGroups(
+        query: String,
+        country: String,
+        tag: String,
+        offset: Int,
+        limit: Int
+    ) async throws -> [StationGroup] {
+        let cacheKey = StationCache.CacheKey.search(
+            "\(query)-\(country)-\(tag)",
+            offset: offset,
+            limit: limit
+        )
+
+        // Check cache first
+        if let cachedStations = await cache.get(cacheKey) {
+            let filteredStations = StationFilters.filterStations(cachedStations)
+            return await groupStations(filteredStations)
+        }
+
+        // Cache miss - fetch from remote
+        print("📡 Searching stations: query=\(query), country=\(country), tag=\(tag)")
+        let stations = try await remote.fetchStationsExt(
+            country: country,
+            name: query,
+            tag: tag,
+            offset: offset,
+            limit: limit
+        )
+
+        // Apply filters before caching and grouping
+        let filteredStations = StationFilters.filterStations(stations)
+
+        // Store in cache
+        await cache.set(cacheKey, stations: filteredStations)
+
+        return await groupStations(filteredStations)
     }
 
     func getFavoriteStationGroups() async throws -> [StationGroup] {

@@ -10,6 +10,17 @@ struct StationListView: View {
     @ObservedObject var playerState = PlayerState.shared
     @ObservedObject var viewModel: StationsViewModel
     let stations: [Station]
+    @State private var showExploreView = false
+    private let repository: StationRepository
+
+    init(playerState: PlayerState = PlayerState.shared, viewModel: StationsViewModel, stations: [Station]) {
+        self.playerState = playerState
+        self.viewModel = viewModel
+        self.stations = stations
+        // Get repository from DependencyContainer
+        let container = DependencyContainer()
+        self.repository = container.stationRepository
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -23,6 +34,9 @@ struct StationListView: View {
                 }
                 FilterButton(title: "Recent", isSelected: viewModel.listType == .recent) {
                     viewModel.setListType(.recent)
+                }
+                FilterButton(title: "Explore", icon: "magnifyingglass", isSelected: false) {
+                    showExploreView = true
                 }
             }
             .padding(.horizontal)
@@ -49,6 +63,9 @@ struct StationListView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .previousTrackRequested)) { _ in
             playerState.playPrevious()
+        }
+        .sheet(isPresented: $showExploreView) {
+            ExploreView(repository: repository)
         }
     }
 }
@@ -114,21 +131,28 @@ struct StationGridTile: View {
 
 struct FilterButton: View {
     let title: String
+    var icon: String? = nil
     let isSelected: Bool
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            Text(title)
-                .font(.subheadline)
-                .fontWeight(isSelected ? .bold : .regular)
-                .foregroundColor(isSelected ? .white : .gray)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(isSelected ? AppColors.grad1 : Color.gray.opacity(0.2))
-                )
+            HStack(spacing: 6) {
+                if let icon = icon {
+                    Image(systemName: icon)
+                        .font(.subheadline)
+                }
+                Text(title)
+                    .font(.subheadline)
+                    .fontWeight(isSelected ? .bold : .regular)
+            }
+            .foregroundColor(isSelected ? .white : .gray)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(isSelected ? AppColors.grad1 : Color.gray.opacity(0.2))
+            )
         }
     }
 }
