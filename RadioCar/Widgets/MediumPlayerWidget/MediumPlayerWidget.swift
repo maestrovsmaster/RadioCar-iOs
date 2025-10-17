@@ -3,8 +3,13 @@ import SwiftUI
 
 struct MediumPlayerView: View {
     @ObservedObject private var playerState = PlayerState.shared
-    
-    
+    private let repository: StationRepository
+
+    init() {
+        let container = DependencyContainer()
+        self.repository = container.stationRepository
+    }
+
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 16)
@@ -24,12 +29,13 @@ struct MediumPlayerView: View {
                     LottieView(animationName: "anim_wave")
                         .frame(height: 354)
                         .padding(.bottom, -150)
+                        .allowsHitTesting(false) // Дозволяє кнопкам під анімацією приймати тапи
                 }
             }
         
        // .frame(height: 70)
             
-            VStack(spacing: 16) {
+            VStack(spacing: 8) {
                 Spacer()
                 HStack(spacing: 12) {
 
@@ -68,20 +74,39 @@ struct MediumPlayerView: View {
 
                     }
 
-
-
-
                     Spacer()
                 }
                 .padding(.horizontal)
-            
-                
+
+                // Action buttons row
+                HStack(spacing: 16) {
+                    
+                    LikeWidget(isLiked: playerState.currentStationGroup?.isFavorite) {
+                        Task {
+                            await toggleFavorite()
+                        }
+                    }
+                    .frame(width: 44, height: 44)
+
+                    Spacer()
+                        .frame(width: 20)
+
+                    ReportWidget {
+                        Task {
+                            sendReport()
+                        }
+                    }
+                    .frame(width: 44, height: 44)
+                }
+                .padding(.horizontal)
+                .allowsHitTesting(true)
+
                 VolumeBarView(
                     volume: $playerState.volume,
                     segmentsCount: 10,
                     color: .white
                 )
-                .frame(height: 30)
+                .frame(height: 24)
                 
                 Spacer()
                 
@@ -92,6 +117,44 @@ struct MediumPlayerView: View {
              .padding(.vertical, 4)
         }
         .clipped() // Prevents content from overflowing
+    }
+
+    // MARK: - Actions
+
+    /// Toggle favorite status for current station
+    private func toggleFavorite() async {
+        guard let stationGroup = playerState.currentStationGroup else {
+            return
+        }
+
+        guard let firstStationUuid = stationGroup.stations.first?.stationuuid else {
+            return
+        }
+
+        do {
+            let newFavoriteState = !(stationGroup.isFavorite)
+
+            if newFavoriteState {
+                try await repository.addToFavorites(stationUuid: firstStationUuid)
+            } else {
+                try await repository.removeFromFavorites(stationUuid: firstStationUuid)
+            }
+
+            // Update PlayerState
+            playerState.updateFavoriteStatus(isFavorite: newFavoriteState)
+
+        } catch {
+            print("Failed to toggle favorite: \(error)")
+        }
+    }
+
+    /// Send report email for current station
+    private func sendReport() {
+        guard let stationName = playerState.currentStation?.name else {
+            return
+        }
+
+        EmailHelper.sendReportEmail(stationName: stationName)
     }
 }
 

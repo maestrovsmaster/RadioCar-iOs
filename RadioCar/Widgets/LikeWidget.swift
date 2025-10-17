@@ -3,16 +3,15 @@ import SwiftUI
 struct LikeWidget: View {
     var isLiked: Bool?
     var onLikeClick: () -> Void
-    
+
     var body: some View {
         if let liked = isLiked {
             Button(action: onLikeClick) {
-                Image(liked ? "ic_favorite_24" : "ic_favorite_stroke_24")
-                    .renderingMode(.template)
+                Image(systemName: liked ? "heart.fill" : "heart")
                     .foregroundColor(AppColors.grayLight)
                     .accessibilityLabel("Like")
             }
-            .buttonStyle(PlainButtonStyle())
+            .buttonStyle(.plain)
         }
     }
 }
@@ -22,6 +21,6 @@ struct LikeWidget_Previews: PreviewProvider {
         LikeWidget(isLiked: true) {
             print("Liked toggled")
         }
-        .frame(width: 44, height: 44)
+        .frame(width: 36, height: 36)
     }
 }

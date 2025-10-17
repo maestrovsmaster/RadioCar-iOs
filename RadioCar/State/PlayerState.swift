@@ -120,5 +120,19 @@ final class PlayerState: ObservableObject {
             playStation(stationList[previousIndex])
         }
     }
+
+    func updateFavoriteStatus(isFavorite: Bool) {
+        self.isFavorite = isFavorite
+        // Update current station group favorite status
+        if var currentGroup = currentStationGroup {
+            currentGroup.isFavorite = isFavorite
+            self.currentStationGroup = currentGroup
+
+            // Also update in stationGroups array
+            if let index = stationGroups.firstIndex(where: { $0.id == currentGroup.id }) {
+                stationGroups[index].isFavorite = isFavorite
+            }
+        }
+    }
 }
 

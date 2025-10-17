@@ -2,14 +2,14 @@ import SwiftUI
 
 struct ReportWidget: View {
     var onReportClick: () -> Void
+
     var body: some View {
         Button(action: onReportClick) {
-            Image("flag_24dp_")
-                .renderingMode(.template)
+            Image(systemName: "flag.fill") // ← SF Symbol
                 .foregroundColor(AppColors.error)
                 .accessibilityLabel("Report")
         }
-        .buttonStyle(PlainButtonStyle())
+        .buttonStyle(.plain)
     }
 }
 
@@ -19,6 +19,6 @@ struct ReportWidget_Previews: PreviewProvider {
         ReportWidget {
             print("Report clicked")
         }
-        .frame(width: 44, height: 44) 
+        .frame(width: 36, height: 36) 
     }
 }
