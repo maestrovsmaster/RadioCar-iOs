@@ -12,6 +12,13 @@ import SwiftData
 struct RadioCarApp: App {
     @StateObject private var container = DependencyContainer()
     @StateObject private var bluetoothManager = BluetoothManager.shared
+    @StateObject private var playerState = PlayerState.shared
+    @StateObject private var settings = SettingsManager.shared
+
+    init() {
+        // Load last station on app init (runs once)
+        PlayerState.shared.loadLastStation(autoplay: SettingsManager.shared.autoplay)
+    }
 
     @available(iOS 17.0, *)
     var modelContainer: ModelContainer {
@@ -38,9 +45,8 @@ struct RadioCarApp: App {
                     .modelContainer(modelContainer)
                     .onAppear {
                         // Initialize BluetoothManager with modelContext
-                        if let context = try? ModelContext(modelContainer) {
-                            bluetoothManager.setModelContext(context)
-                        }
+                        let context = modelContainer.mainContext
+                        bluetoothManager.setModelContext(context)
                     }
             } else {
                 ContentView()

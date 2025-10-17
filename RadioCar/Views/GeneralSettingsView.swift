@@ -12,6 +12,7 @@ struct GeneralSettingsView: View {
     @Environment(\.dismiss) var dismiss
     @State private var showMailComposer = false
     @State private var showMailAlert = false
+    @ObservedObject private var settings = SettingsManager.shared
 
     var body: some View {
         ZStack {
@@ -74,6 +75,31 @@ struct GeneralSettingsView: View {
                                 .italic()
                                 .padding(.horizontal, 16)
                                 .padding(.top, 8)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.bottom, 16)
+
+                        // Autoplay Setting
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(AppStrings.playbackSettings)
+                                .font(.system(size: 18, weight: .medium))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 16)
+                                .padding(.bottom, 4)
+
+                            Toggle(isOn: $settings.autoplay) {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(AppStrings.autoplay)
+                                        .font(.system(size: 16))
+                                        .foregroundColor(.white)
+                                    Text(AppStrings.autoplayDescription)
+                                        .font(.system(size: 13))
+                                        .foregroundColor(.white.opacity(0.7))
+                                }
+                            }
+                            .tint(AppColors.grad1)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.bottom, 16)

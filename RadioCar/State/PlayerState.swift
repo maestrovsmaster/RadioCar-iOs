@@ -25,6 +25,27 @@ final class PlayerState: ObservableObject {
 
     private init() {}
 
+    // MARK: - Last Station Management
+
+    /// Load the last played station from cache and optionally start playback
+    /// - Parameter autoplay: Whether to automatically start playing the station
+    func loadLastStation(autoplay: Bool) {
+        guard let station = LastStationCache.shared.loadLastStation() else {
+            return
+        }
+
+        let stationGroup = LastStationCache.shared.loadLastStationGroup()
+
+        // Set current station and group without triggering playback
+        currentStation = station
+        currentStationGroup = stationGroup
+
+        // Only play if autoplay is enabled
+        if autoplay {
+            playStation(station)
+        }
+    }
+
     func setStations(_ stations: [Station]) {
         self.stationList = stations
     }
@@ -39,6 +60,9 @@ final class PlayerState: ObservableObject {
         if let firstStation = group.stations.first {
             playStation(firstStation)
         }
+
+        // Save to cache
+        LastStationCache.shared.saveLastStation(currentStation, stationGroup: group)
     }
 
     func playStation(_ station: Station) {
@@ -56,6 +80,9 @@ final class PlayerState: ObservableObject {
            let stationUrl = URL(string: urlString) {
             ICYMetadataFetcher.shared.fetchMetadata(from: stationUrl)
         }
+
+        // Save to cache
+        LastStationCache.shared.saveLastStation(station, stationGroup: currentStationGroup)
     }
 
     func pause() {

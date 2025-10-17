@@ -29,6 +29,10 @@ struct AppStrings {
     static let aboutApp = "About app"
     static let aboutAppDescription = "Radio Car: Your ideal travel companion on the road!\nThis application receives public data from open sources. If you discover any inappropriate content, please report it using the button next to the station."
 
+    static let playbackSettings = "Playback Settings"
+    static let autoplay = "Autoplay on Launch"
+    static let autoplayDescription = "Automatically play the last station when app starts"
+
     static let privacyPolicy = "Privacy Policy"
     static let openAPI = "Open API"
     static let contactUs = "Contact Us"
