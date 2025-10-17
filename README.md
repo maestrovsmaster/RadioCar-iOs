@@ -1,54 +1,57 @@
 # RadioCar iOS
 
 <p float="left">
-<img width="357" alt="RadioCar Main Screen" src="https://github.com/user-attachments/assets/radiocar-ios-main.png" />
-<img width="357" alt="RadioCar Player" src="https://github.com/user-attachments/assets/radiocar-ios-player.png" />
+<img width="350" height="2622" alt="simulator_screenshot_4362332E-36D1-4349-9E2F-7B52F3774CA8" src="https://github.com/user-attachments/assets/350203a1-3f51-4af9-819f-0100f5d16b15" />
+<img width="350" height="2622" alt="simulator_screenshot_09D1CE55-E244-4191-8E64-BB3885529352" src="https://github.com/user-attachments/assets/05423029-ab88-492a-964f-51e2bedfb5f1" />
 </p>
+
 
 ## Overview
 RadioCar is your ultimate car radio companion for iOS - a sleek SwiftUI application that streams thousands of radio stations worldwide with intelligent Bluetooth auto-play functionality. Designed specifically for in-car use with a beautiful dark interface and real-time speed display.
 
-[![App Store](https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg)](https://apps.apple.com/app/radiocar/id6504000000)
+
+
+
 
 ## Features
 
-### 🚗 Smart Bluetooth Auto-Play
+###  Smart Bluetooth Auto-Play
 - Automatically starts playing your last station when connected to your car's Bluetooth system
 - Seamless integration with car audio systems
 - Resume playback exactly where you left off
 
-### 📻 Unlimited Radio Stations
+###  Unlimited Radio Stations
 - Access thousands of radio stations worldwide via [Radio Browser API](http://api.radio-browser.info)
 - Real-time ICY metadata display (artist, song title)
 - Background audio playback support
 
-### 📍 Built-in Speedometer
+###  Built-in Speedometer
 - Real-time speed display using Core Location
 - Optimized for safe viewing while driving
 - Automatic location-based features
 
-### ⭐ Smart Station Management
+###  Smart Station Management
 - Save favorite stations for quick access
 - Recently played history
 - Automatic station grouping by name
 
-### 🔍 Advanced Search & Discovery
+###  Advanced Search & Discovery
 - Search by station name, country, or genre
 - Filter by tags: Pop, Rock, Jazz, Classical, Electronic, Hip Hop, News, Sports, and more
 - Country filters: Ukraine, USA, UK, Germany, France, Poland, Italy, Spain
 
-### 🎚️ Beautiful UI
+###  Beautiful UI
 - Dark theme optimized for night driving
 - Segmented volume control with visual feedback
 - Lottie animations for enhanced user experience
 - SwiftUI-native interface
 
-### ⚙️ Customizable Settings
+###  Customizable Settings
 - Autoplay on launch toggle
 - Last station persistence
 - Privacy-focused design
 
-### 🛡️ Safe & Responsible
+###  Safe & Responsible
 - Content disclaimer on first launch
 - Report functionality for inappropriate stations
 - Server-side filtering for inappropriate content
@@ -106,10 +109,7 @@ RadioCar/
 - **Purpose:** Real-time song metadata extraction from radio streams
 - **Implementation:** Custom HTTP header parsing
 
-## Download
-The app is available on the App Store. Download it here:
 
-[![Download on App Store](https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg)](https://apps.apple.com/app/radiocar/id6504000000)
 
 ## Requirements
 - **iOS:** 15.8 or later
@@ -123,10 +123,10 @@ The app is available on the App Store. Download it here:
 
 ### Data Collection
 RadioCar respects your privacy:
-- ✅ **No personal data collection** - No analytics, no tracking, no user accounts
-- ✅ **Location used locally only** - Speed display only, never shared
-- ✅ **Bluetooth used for detection only** - No data transmitted
-- ✅ **No third-party advertising** - Clean, ad-free experience
+-  **No personal data collection** - No analytics, no tracking, no user accounts
+-  **Location used locally only** - Speed display only, never shared
+-  **Bluetooth used for detection only** - No data transmitted
+-  **No third-party advertising** - Clean, ad-free experience
 
 ### Privacy Policy
 Read our full privacy policy: [radiocartunes.wixsite.com/radiocar/privacy](https://radiocartunes.wixsite.com/radiocar/privacy)
@@ -286,19 +286,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 | Platform | Status | Link |
 |----------|--------|------|
-| 🍎 iOS | Available | [App Store](https://apps.apple.com/app/radiocar/id6504000000) |
-| 🤖 Android | Available | [Play Store](https://play.google.com/store/apps/details?id=com.maestrovs.radiocar) |
+| iOS | - | - |
+|  Android | Available | [Play Store](https://play.google.com/store/apps/details?id=com.maestrovs.radiocar) |
 
-## Screenshots
 
-### Main Features
-| Speedometer & Player | Station List | Search & Explore | Settings |
-|---------------------|--------------|------------------|----------|
-| <img src="screenshots/main.png" width="200"> | <img src="screenshots/list.png" width="200"> | <img src="screenshots/search.png" width="200"> | <img src="screenshots/settings.png" width="200"> |
-
-> Note: Screenshots to be added after App Store approval
-
----
 
 ## API Usage Guidelines
 
@@ -313,15 +304,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Version History
 
 ### 1.0 (2025-10-17) - Initial Release
-- ✨ First public release
-- 🚗 Bluetooth auto-play functionality
-- 📻 Thousands of streaming radio stations
-- 📍 Real-time speedometer
-- ⭐ Favorites and recent stations
-- 🔍 Advanced search with filters
-- 🌓 Dark theme optimized for driving
-- ⚙️ Autoplay settings
-- 🛡️ Content disclaimer and reporting
+-  First public release
+-  Bluetooth auto-play functionality
+-  Thousands of streaming radio stations
+-  Real-time speedometer
+-  Favorites and recent stations
+-  Advanced search with filters
+-  Dark theme optimized for driving
+-  Autoplay settings
+-  Content disclaimer and reporting
 
 ---
 
