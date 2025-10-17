@@ -40,4 +40,10 @@ struct AppStrings {
     static let appVersion = "App version"
     static let done = "Done"
     static let close = "Close"
+
+    // Disclaimer
+    static let disclaimerTitle = "Disclaimer"
+    static let disclaimerMessage = "This app does not endorse or promote any specific radio content. All content comes from third-party public sources.\n\nIf you notice any inappropriate or illegal content, please report it using the button next to the station."
+    static let disclaimerAgree = "I Understand"
+    static let cancel = "Cancel"
 }
