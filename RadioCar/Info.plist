@@ -8,6 +8,9 @@
 	</array>
 	<key>NSAppTransportSecurity</key>
 	<dict>
+		<!-- NSAllowsArbitraryLoads is required because the app streams radio content from third-party URLs
+		     that may use HTTP instead of HTTPS. Radio stations are sourced from radio-browser.info API,
+		     and many community radio stations only provide HTTP streams. -->
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
@@ -25,8 +28,6 @@
 	<key>NSBluetoothPeripheralUsageDescription</key>
 	<string>RadioCar uses Bluetooth to detect when you connect to your car and automatically start playing.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>RadioCar needs your location to display your current speed and location while driving.</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>RadioCar needs your location to display your current speed and location while driving.</string>
 </dict>
 </plist>

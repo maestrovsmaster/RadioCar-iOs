@@ -12,7 +12,8 @@ struct AppConstants {
     static let privacyURL = "https://radiocartunes.wixsite.com/radiocar/privacy"
     static let aboutRadioURL = "http://api.radio-browser.info/#General"
     static let contactEmail = "radiocar.tunes@gmail.com"
-    static let appStoreURL = "https://apps.apple.com/app/id6504000000" // TODO: Update with actual App Store ID
+    // NOTE: Update this URL after App Store Connect app listing is created
+    static let appStoreURL = "https://apps.apple.com/app/radiocar/id6504000000"
 
     // App Info
     static var appVersion: String {
